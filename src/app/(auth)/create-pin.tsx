@@ -33,7 +33,7 @@ export default function CreatePin() {
             text-white/80 text-center
           "
         >
-          Create a PIN for backup login
+          Create a PIN To secure your account
         </Text>
 
         <View

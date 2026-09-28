@@ -8,7 +8,8 @@ export default function AuthBottomCard({ children }: Props) {
   return (
     <View
       className="
-      bg-[#F6F8F7]
+      bg-background
+      dark:bg-background-dark
       rounded-t-[2rem]
       px-8
       pt-10

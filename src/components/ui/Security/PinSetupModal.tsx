@@ -1,96 +1,167 @@
+import { useState } from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
 
-import { useState } from "react";
-
 import PinInput from "@/components/ui/Security/PinInput";
+import { router } from "expo-router";
 
 interface Props {
   visible: boolean;
 
+  mode: "setup" | "verify";
+
   onClose: () => void;
 
-  onComplete: (pin: string) => void;
+  onComplete?: (pin: string) => void;
+
+  onVerify?: (pin: string) => void;
+
+  loading?: boolean;
+
+  error?: string;
 }
 
-export default function PinSetupModal({
+export default function PinModal({
   visible,
-
+  mode,
   onClose,
-
   onComplete,
+  onVerify,
+  loading = false,
+  error,
 }: Props) {
   const [pin, setPin] = useState("");
 
-  const submit = () => {
-    if (pin.length === 6) {
-      onComplete(pin);
+  const isSetup = mode === "setup";
 
-      setPin("");
+  const submit = () => {
+    if (pin.length !== 6 || loading) {
+      return;
     }
+
+    if (isSetup) {
+      onComplete?.(pin);
+    } else {
+      onVerify?.(pin);
+    }
+
+    setPin("");
+  };
+
+  const handleClose = () => {
+    setPin("");
+    onClose();
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide">
-      <View
-        className="
-          flex-1
-          bg-black/40
-          justify-end
-        "
-      >
+    <Modal
+      visible={loading ? false : visible}
+      transparent
+      animationType="slide"
+      onRequestClose={handleClose}
+    >
+      <View className="flex-1 bg-primary justify-end">
         <View
           className="
-            px-6 pt-10 pb-8
-            bg-white
-            rounded-t-[40px]
+          bg-background
+            dark:bg-background-dark
+            rounded-t-3xl
+            px-6
+            pt-7
+            pb-10
           "
         >
+          {/* Header */}
+
           <Text
             className="
-              text-2xl font-bold text-dark text-center
+              text-2xl
+              font-bold
+              text-slate-900
+              dark:text-white
+              text-center
             "
           >
-            Create Wallet PIN
+            {isSetup ? "Create Wallet PIN" : "Enter Wallet PIN"}
           </Text>
 
           <Text
             className="
               mt-2
-              text-slate-500 text-center
+              text-slate-500
+              dark:text-slate-400
+              text-center
             "
           >
-            This PIN will be used as backup login
+            {isSetup
+              ? "This PIN will be used to secure your wallet"
+              : "Enter your PIN to verify your identity"}
           </Text>
 
-          <View
-            className="
-              mt-8
-            "
-          >
+          {/* PIN */}
+
+          <View className="mt-8">
             <PinInput value={pin} onChange={setPin} />
           </View>
 
+          {/* Error */}
+
+          {error ? (
+            <Text
+              className="
+                mt-3
+                text-red-500
+                text-center
+              "
+            >
+              {error}
+            </Text>
+          ) : null}
+
+          {/* Submit */}
+
           <TouchableOpacity
             onPress={submit}
-            className="
+            disabled={pin.length !== 6 || loading}
+            className={`
               h-14
               mt-6
-              bg-primary
               rounded-2xl
-              items-center justify-center
-            "
+              items-center
+              justify-center
+              ${
+                pin.length === 6 && !loading
+                  ? "bg-primary"
+                  : "bg-slate-300 dark:bg-slate-700"
+              }
+            `}
           >
             <Text
               className="
-                text-white font-bold
+                text-white
+                font-bold
               "
             >
-              Save PIN
+              {loading ? "Please wait..." : isSetup ? "Save PIN" : "Verify PIN"}
             </Text>
           </TouchableOpacity>
+          {!isSetup && (
+            <TouchableOpacity
+              onPress={() => router.navigate("/(auth)/forgot-pin")}
+              className="h-14
+              mt-6
+              rounded-2xl
+              items-center
+              justify-center bg-slate-300 dark:bg-slate-700"
+            >
+              <Text className="text-white font-bold">Forgot Pin</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Cancel */}
 
           <TouchableOpacity
-            onPress={onClose}
+            onPress={handleClose}
+            disabled={loading}
             className="
               mt-5
               items-center
@@ -99,6 +170,7 @@ export default function PinSetupModal({
             <Text
               className="
                 text-slate-500
+                dark:text-slate-400
               "
             >
               Cancel

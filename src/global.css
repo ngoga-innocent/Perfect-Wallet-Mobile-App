@@ -11,3 +11,36 @@
   --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
 }
+
+@layer base {
+  
+  :root {
+    --color-primary: 16 100 77;
+    --color-secondary: 16 185 129;
+    --color-accent: 245 197 66;
+    --color-background: 246 248 247;
+    --color-surface: 255 255 255;
+    --color-card: 255 255 255;
+    --color-text-primary: 15 23 42;
+    --color-text-secondary: 100 116 139;
+    --color-text-muted: 148 163 184;
+    --color-border: 229 231 235;
+  }
+  
+  .dark {
+    --color-primary: 16 100 77;
+    --color-secondary: 16 185 129;
+    --color-accent: 245 197 66;
+    --color-background: 9 9 11;
+    --color-surface: 24 24 27;
+    --color-card: 31 41 55;
+    --color-text-primary: 248 250 252;
+    --color-text-secondary: 203 213 225;
+    --color-text-muted: 148 163 184;
+    --color-border: 63 63 70;
+  }
+}
+
+@background-color:rgb(var(--color-background));
+
+@text-color:rgb(var(--color-text-primary));

@@ -1,17 +1,17 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery } from "./baseQuery";
+// import { createApi } from "@reduxjs/toolkit/query/react";
+// import { baseApi } from "./baseQuery";
 
-export const apiSlice = createApi({
-    reducerPath: "api",
+// export const apiSlice = createApi({
+//     reducerPath: "api",
 
-    baseQuery,
+//     baseQuery: baseApi.endpoints,
 
-    tagTypes: [
-        "User",
-        "Wallet",
-        "Loan",
-        "Transaction",
-    ],
+//     tagTypes: [
+//         "User",
+//         "Wallet",
+//         "Loan",
+//         "Transaction",
+//     ],
 
-    endpoints: () => ({}),
-});
+//     endpoints: () => ({}),
+// });

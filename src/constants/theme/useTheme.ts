@@ -1,3 +1,4 @@
-import { useThemeContext } from "./ThemeProvider";
-
-export const useTheme = () => useThemeContext();
+export type ThemeMode =
+    | "light"
+    | "dark"
+    | "system";

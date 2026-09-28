@@ -2,18 +2,42 @@ import { ScrollView, Text, View } from "react-native";
 
 import AuthLayout from "@/components/ui/AuthLayout";
 
+import { usePinsetupMutation } from "@/api/authApi";
 import PrimaryButton from "@/components/ui/Buttons/PrimaryButton";
+import AppLoader from "@/components/ui/Loader/AppLoader";
 import AuthenticatorSetupModal from "@/components/ui/Security/AuthenticatorSetupModal";
 import BiometricSetupModal from "@/components/ui/Security/BiometricModal";
 import PinSetupModal from "@/components/ui/Security/PinSetupModal";
 import SecurityCard from "@/components/ui/Security/Security-Card";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import React, { useState } from "react";
-
+import { router } from "expo-router";
 export default function SecuritySetup() {
   const [setupPinModalVisible, setSetupPinModalVisible] = React.useState(false);
   const [showBiometric, setShowBiometric] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [authenticatorVisible, setAuthenticatorVisible] = useState(false);
+  const [pinSetup, { isLoading: pinsetupLoading }] = usePinsetupMutation();
+  const { execute } = useApiMutation();
+
+  const setUpPinhandler = async (pin: string) => {
+    // console.log("PIN set up:", pin);
+    const result = await execute(
+      () =>
+        pinSetup({
+          pin,
+          confirm_pin: pin,
+        }).unwrap(),
+
+      {
+        showSuccess: true,
+        successMessage: "PIN setup successful!",
+      },
+    );
+
+    if (!result.success) return;
+    setSetupPinModalVisible(false);
+  };
   return (
     <AuthLayout>
       <ScrollView
@@ -22,10 +46,9 @@ export default function SecuritySetup() {
           px-6
           flex-col
           flex-nowrap
-          
-          
-        "
+          "
       >
+        <AppLoader visible={pinsetupLoading} message="Setting up PIN..." />
         <Text
           className="
             mt-10
@@ -76,12 +99,16 @@ export default function SecuritySetup() {
           />
         </View>
 
-        <PrimaryButton title="Continue" onPress={() => {}} />
+        <PrimaryButton
+          title="Continue"
+          onPress={() => router.navigate("/(tabs)")}
+        />
 
         <PinSetupModal
           visible={setupPinModalVisible}
+          mode="setup"
           onClose={() => setSetupPinModalVisible(false)}
-          onComplete={(pin) => console.log("PIN set:", pin)}
+          onComplete={(pin) => setUpPinhandler(pin)}
         />
         <BiometricSetupModal
           visible={showBiometric}

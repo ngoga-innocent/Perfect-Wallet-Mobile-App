@@ -1,25 +1,14 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
-import { Appearance, ColorSchemeName } from "react-native";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { darkTheme } from "./darkTheme";
-import { lightTheme } from "./lightTheme";
+import { useColorScheme } from "nativewind";
 
-import type { ThemeColors, ThemeMode } from "./types";
+import type { ThemeMode } from "./types";
 
 const STORAGE_KEY = "@walletflow_theme";
 
 interface ThemeContextType {
-  theme: ThemeColors;
-
   mode: ThemeMode;
 
   isDark: boolean;
@@ -29,55 +18,52 @@ interface ThemeContextType {
   toggleTheme: () => Promise<void>;
 }
 
-const ThemeContext = createContext<ThemeContextType | null>(null);
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 interface Props {
   children: React.ReactNode;
 }
 
 export function ThemeProvider({ children }: Props) {
+  const { colorScheme, setColorScheme } = useColorScheme();
+
   const [mode, setModeState] = useState<ThemeMode>("system");
 
-  const [systemTheme, setSystemTheme] = useState<ColorSchemeName>(
-    Appearance.getColorScheme() ?? "light",
-  );
-
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((saved) => {
+    async function loadTheme() {
+      const saved = await AsyncStorage.getItem(STORAGE_KEY);
+
       if (saved === "light" || saved === "dark" || saved === "system") {
         setModeState(saved);
+
+        setColorScheme(saved);
       }
-    });
+    }
+
+    loadTheme();
   }, []);
 
-  useEffect(() => {
-    const listener = Appearance.addChangeListener(({ colorScheme }) => {
-      setSystemTheme(colorScheme);
-    });
-
-    return () => listener.remove();
-  }, []);
-
-  const isDark = mode === "system" ? systemTheme === "dark" : mode === "dark";
-
-  const theme = useMemo(() => (isDark ? darkTheme : lightTheme), [isDark]);
+  const isDark = colorScheme === "dark";
 
   const setMode = async (newMode: ThemeMode) => {
     setModeState(newMode);
 
     await AsyncStorage.setItem(STORAGE_KEY, newMode);
+
+    setColorScheme(newMode);
   };
 
   const toggleTheme = async () => {
-    const next = isDark ? "light" : "dark";
-
-    await setMode(next);
+    await setMode(isDark ? "light" : "dark");
   };
+
+  console.log("Theme mode:", mode);
+  console.log("NativeWind scheme:", colorScheme);
+  console.log("Is dark:", isDark);
 
   return (
     <ThemeContext.Provider
       value={{
-        theme,
         mode,
         isDark,
         setMode,
@@ -89,11 +75,12 @@ export function ThemeProvider({ children }: Props) {
   );
 }
 
-export function useThemeContext() {
+export function useTheme() {
   const context = useContext(ThemeContext);
 
-  if (!context)
-    throw new Error("useThemeContext must be used inside ThemeProvider");
+  if (!context) {
+    throw new Error("useTheme must be used inside ThemeProvider");
+  }
 
   return context;
 }

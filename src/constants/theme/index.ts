@@ -1,3 +1,3 @@
-import { useThemeContext } from "./ThemeProvider";
-
-export const useTheme = () => useThemeContext();
+export {
+    ThemeProvider
+} from "./ThemeProvider";

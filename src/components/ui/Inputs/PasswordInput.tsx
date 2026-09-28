@@ -10,7 +10,7 @@ interface Props {
   value: string;
 
   onChangeText: (text: string) => void;
-
+  showPassword?: () => void;
   error?: string;
 }
 
@@ -20,7 +20,7 @@ export default function PasswordInput({
   value,
 
   onChangeText,
-
+  showPassword,
   error,
 }: Props) {
   const [show, setShow] = useState(false);
@@ -32,6 +32,7 @@ export default function PasswordInput({
       onChangeText={onChangeText}
       placeholder="Enter password"
       secureTextEntry={!show}
+      // showPassword={() => setShow(!show)}
       icon={Lock}
     />
   );
